@@ -1,0 +1,15 @@
+<div class="container">
+    <h1>Estadísticas del Curso</h1>
+  
+    <p><strong>Porcentaje de Aprobados:</strong> {{ estadisticas.aprobados }}%</p>
+    <p><strong>Porcentaje de Reprobados:</strong> {{ estadisticas.reprobados }}%</p>
+    <p><strong>Promedio General del Curso:</strong> {{ estadisticas.promedioGeneral }}</p>
+  
+    <h2>Porcentaje de Aprobados por Sexo</h2>
+    <ul>
+      <li *ngFor="let sexo of estadisticas.porcentajePorSexo | keyvalue">
+        <strong>{{ sexo.key }}:</strong> {{ sexo.value }}%
+      </li>
+    </ul>
+  </div>
+  
