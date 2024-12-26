@@ -7,7 +7,9 @@ import { Estudiante } from '../models/estudiantes.model';
 })
 export class EstudianteService {
 
-  // Lista inicial de ejemplo
+  private STORAGE_KEY = 'listaEstudiantes';
+
+  // Lista de ejemplo
   estudiantes: Estudiante[] = [
     {
       cedula: '0101010101',
@@ -35,11 +37,45 @@ export class EstudianteService {
       calificacionFinal: 3.5,
       estadoAprobatorio: 'Reprobado'
     },
+    {
+      cedula: '0303030303',
+      nombres: 'Marco',
+      apellidos: 'Torres',
+      sexo: 'M',
+      fechaNacimiento: '1998-07-21',
+      codigo: 'EST003',
+      parcial1: 6,
+      parcial2: 5,
+      calificacionFinal: 5.5,
+      // Aun no se ha puesto la recuperación
+      estadoAprobatorio: 'En recuperación'
+    },
   ];
 
-  constructor() { }
+  constructor() {
+    this.cargarDesdeLocalStorage();
+  }
 
-  // Podrías agregar métodos CRUD, pero 
-  // con exponer "estudiantes" y manipularlo desde los componentes
-  // es suficiente para la demo.
+  private cargarDesdeLocalStorage(): void {
+    const data = localStorage.getItem(this.STORAGE_KEY);
+    if (data) {
+      try {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) {
+          this.estudiantes = parsed;
+        }
+      } catch (error) {
+        console.error('Error al parsear localStorage:', error);
+      }
+    }
+  }
+
+  guardarEnLocalStorage(): void {
+    try {
+      const data = JSON.stringify(this.estudiantes);
+      localStorage.setItem(this.STORAGE_KEY, data);
+    } catch (error) {
+      console.error('Error al guardar en localStorage:', error);
+    }
+  }
 }

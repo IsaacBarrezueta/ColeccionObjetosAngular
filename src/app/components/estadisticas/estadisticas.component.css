@@ -1,0 +1,156 @@
+/* Estilos específicos para la página de estadísticas */
+/* Mantener las importaciones y variables del estilo anterior */
+
+/* Contenedor de estadísticas */
+.statistics-container {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Tarjetas de estadísticas */
+  .row .col-md-4 {
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
+  }
+  
+  .row .col-md-4:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Estilo para los párrafos de estadísticas */
+  .col-md-4 p {
+    background: var(--background);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--primary);
+    transition: all 0.2s ease;
+  }
+  
+  .col-md-4 p:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Estilos para las etiquetas strong */
+  .col-md-4 p strong {
+    display: block;
+    color: var(--secondary);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  /* Valores de las estadísticas */
+  .col-md-4 p:not(strong) {
+    color: var(--text);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  /* Separador */
+  hr {
+    margin: 2rem 0;
+    border-color: var(--border);
+    opacity: 0.2;
+  }
+  
+  /* Lista de estudiantes sobre el promedio */
+  h5 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    position: relative;
+    display: inline-block;
+  }
+  
+  h5::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, var(--primary), transparent);
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  
+  li {
+    background: var(--surface);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+  }
+  
+  li:hover {
+    transform: translateX(5px);
+    border-left: 4px solid var(--primary);
+  }
+  
+  /* Estilos para el botón volver */
+  .btn-secondary {
+    background-color: var(--secondary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--text);
+    transform: translateY(-1px);
+  }
+  
+  /* Estilos responsivos */
+  @media (max-width: 768px) {
+    .col-md-4 {
+      margin-bottom: 1rem;
+    }
+  
+    ul {
+      grid-template-columns: 1fr;
+    }
+  
+    .col-md-4 p {
+      padding: 0.75rem;
+    }
+  }
+  
+  /* Animaciones */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .col-md-4 p {
+    animation: slideIn 0.3s ease-out forwards;
+  }
+  
+  .col-md-4:nth-child(2) p {
+    animation-delay: 0.1s;
+  }
+  
+  .col-md-4:nth-child(3) p {
+    animation-delay: 0.2s;
+  }

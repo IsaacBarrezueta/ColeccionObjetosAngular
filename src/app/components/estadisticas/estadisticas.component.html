@@ -1,12 +1,20 @@
-<!-- src/app/components/estadisticas/estadisticas.component.html -->
-<div class="container">
+<div class="container statistics-container">
   <h2>Estadísticas</h2>
-  <button class="btn btn-secondary mb-3" (click)="volver()">Volver a Estudiantes</button>
+  <br>
+  <button class="btn btn-secondary mb-3" (click)="volver()">
+    <i class="fas fa-arrow-left"></i> Volver a Estudiantes
+  </button>
 
   <div class="row">
     <div class="col-md-4">
-      <p><strong>Porcentaje Aprobados:</strong> {{ porcentajeAprobados | number:'1.1-2' }}%</p>
-      <p><strong>Porcentaje Reprobados:</strong> {{ porcentajeReprobados | number:'1.1-2' }}%</p>
+      <p>
+        <strong>Porcentaje Aprobados</strong>
+        {{ porcentajeAprobados | number:'1.1-2' }}%
+      </p>
+      <p>
+        <strong>Porcentaje Reprobados</strong>
+        {{ porcentajeReprobados | number:'1.1-2' }}%
+      </p>
     </div>
     <div class="col-md-4">
       <p><strong>Porcentaje Aprobados Hombres:</strong> {{ porcentajeAprobadosHombres | number:'1.1-2' }}%</p>
@@ -19,14 +27,42 @@
 
   <hr />
 
-  <h4>Estudiantes sobre el promedio:</h4>
+  <h5>Estudiantes sobre el Promedio:</h5>
   <ul>
     <li *ngFor="let e of estudiantesSobrePromedio">
-      {{ e.nombres }} {{ e.apellidos }} 
-      ({{ e.notaDefinitiva != null 
-          ? (e.notaDefinitiva | number:'1.1-2') 
-          : (e.calificacionFinal | number:'1.1-2') }})
+      {{ e.nombres }} {{ e.apellidos }}
+      ({{ e.notaDefinitiva != null ? (e.notaDefinitiva | number:'1.1-2') : (e.calificacionFinal | number:'1.1-2') }})
     </li>
     <li *ngIf="estudiantesSobrePromedio.length === 0">Ninguno</li>
   </ul>
+
+  <hr />
+
+  <!-- Gráficas de ApexCharts -->
+  <div class="row">
+    <div class="col-md-6">
+      <!-- Gráfico Pie (Aprobados vs. Reprobados) -->
+      <apx-chart
+        [series]="chartOptionsPie.series"
+        [chart]="chartOptionsPie.chart"
+        [labels]="chartOptionsPie.labels"
+        [responsive]="chartOptionsPie.responsive"
+        [legend]="chartOptionsPie.legend"
+        [title]="chartOptionsPie.title"
+      ></apx-chart>
+    </div>
+
+    <div class="col-md-6">
+      <!-- Gráfico de Barras (Aprobados Hombres vs. Mujeres) -->
+      <apx-chart
+        [series]="chartOptionsBar.series"
+        [chart]="chartOptionsBar.chart"
+        [plotOptions]="chartOptionsBar.plotOptions"
+        [dataLabels]="chartOptionsBar.dataLabels"
+        [xaxis]="chartOptionsBar.xaxis"
+        [title]="chartOptionsBar.title"
+      >
+      </apx-chart>
+    </div>
+  </div>
 </div>
