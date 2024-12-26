@@ -1,15 +1,32 @@
+<!-- src/app/components/estadisticas/estadisticas.component.html -->
 <div class="container">
-    <h1>Estadísticas del Curso</h1>
-  
-    <p><strong>Porcentaje de Aprobados:</strong> {{ estadisticas.aprobados }}%</p>
-    <p><strong>Porcentaje de Reprobados:</strong> {{ estadisticas.reprobados }}%</p>
-    <p><strong>Promedio General del Curso:</strong> {{ estadisticas.promedioGeneral }}</p>
-  
-    <h2>Porcentaje de Aprobados por Sexo</h2>
-    <ul>
-      <li *ngFor="let sexo of estadisticas.porcentajePorSexo | keyvalue">
-        <strong>{{ sexo.key }}:</strong> {{ sexo.value }}%
-      </li>
-    </ul>
+  <h2>Estadísticas</h2>
+  <button class="btn btn-secondary mb-3" (click)="volver()">Volver a Estudiantes</button>
+
+  <div class="row">
+    <div class="col-md-4">
+      <p><strong>Porcentaje Aprobados:</strong> {{ porcentajeAprobados | number:'1.1-2' }}%</p>
+      <p><strong>Porcentaje Reprobados:</strong> {{ porcentajeReprobados | number:'1.1-2' }}%</p>
+    </div>
+    <div class="col-md-4">
+      <p><strong>Porcentaje Aprobados Hombres:</strong> {{ porcentajeAprobadosHombres | number:'1.1-2' }}%</p>
+      <p><strong>Porcentaje Aprobados Mujeres:</strong> {{ porcentajeAprobadosMujeres | number:'1.1-2' }}%</p>
+    </div>
+    <div class="col-md-4">
+      <p><strong>Promedio General:</strong> {{ promedioGeneral | number:'1.1-2' }}</p>
+    </div>
   </div>
-  
+
+  <hr />
+
+  <h4>Estudiantes sobre el promedio:</h4>
+  <ul>
+    <li *ngFor="let e of estudiantesSobrePromedio">
+      {{ e.nombres }} {{ e.apellidos }} 
+      ({{ e.notaDefinitiva != null 
+          ? (e.notaDefinitiva | number:'1.1-2') 
+          : (e.calificacionFinal | number:'1.1-2') }})
+    </li>
+    <li *ngIf="estudiantesSobrePromedio.length === 0">Ninguno</li>
+  </ul>
+</div>

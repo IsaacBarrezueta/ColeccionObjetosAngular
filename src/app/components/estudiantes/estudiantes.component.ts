@@ -1,78 +1,114 @@
+// src/app/components/estudiantes/estudiantes.component.ts
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms'; // Importa FormsModule
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { EstudianteService } from '../../services/estudiante.service';
-import { Estudiante } from '../../models/estudiantes/estudiantes.module';
+import { Estudiante } from '../../models/estudiantes.model';
 
 @Component({
   selector: 'app-estudiantes',
   standalone: true,
-  imports: [FormsModule], // Asegúrate de incluir FormsModule aquí
+  imports: [CommonModule, FormsModule],
   templateUrl: './estudiantes.component.html',
-  styleUrls: ['./estudiantes.component.css'],
+  styleUrls: ['./estudiantes.component.css']
 })
 export class EstudiantesComponent {
-  estudiantes: Estudiante[] = [];
-  nuevoEstudiante: Estudiante = new Estudiante('', '', '', 'M', new Date(), '', 0, 0);
-  indiceEdicion: number | null = null;
-  estudianteEnEdicion: Estudiante | null = null;
 
-  constructor(private estudianteService: EstudianteService) {}
+  // Para manejar el formulario de crear/editar
+  estudianteForm: Estudiante = this.nuevoEstudianteVacio();
+  editIndex: number | null = null; // si es null => modo Crear
 
-  ngOnInit(): void {
-    this.estudiantes = this.estudianteService.listarEstudiantes();
+  constructor(
+    private router: Router,
+    public estudianteService: EstudianteService
+  ) {}
+
+  /** Crear un objeto "vacío" para el formulario */
+  private nuevoEstudianteVacio(): Estudiante {
+    return {
+      cedula: '',
+      nombres: '',
+      apellidos: '',
+      sexo: 'M',
+      fechaNacimiento: '',
+      codigo: '',
+      parcial1: 0,
+      parcial2: 0,
+      calificacionFinal: 0,
+      estadoAprobatorio: 'Reprobado'
+    };
   }
 
-  agregarEstudiante(): void {
-    let calificacionFinal = (this.nuevoEstudiante.parcial1 + this.nuevoEstudiante.parcial2) / 2;
-    let estadoAprobatorio = calificacionFinal >= 7 ? 'Aprobado' : 'Reprobado';
-
-    const estudiante = new Estudiante(
-      '',
-      this.nuevoEstudiante.nombres,
-      this.nuevoEstudiante.apellidos,
-      this.nuevoEstudiante.sexo,
-      new Date(),
-      this.nuevoEstudiante.codigo,
-      this.nuevoEstudiante.parcial1,
-      this.nuevoEstudiante.parcial2
-    );
-
-    estudiante.calificacionFinal = calificacionFinal;
-    estudiante.estadoAprobatorio = estadoAprobatorio;
-
-    this.estudianteService.agregarEstudiante(estudiante);
-    this.estudiantes = this.estudianteService.listarEstudiantes();
-    this.nuevoEstudiante = new Estudiante('', '', '', 'M', new Date(), '', 0, 0);
+  /** Lógica CRUD */
+  editarEstudiante(i: number): void {
+    this.editIndex = i;
+    // Clonar para no alterar en vivo
+    this.estudianteForm = { ...this.estudianteService.estudiantes[i] };
   }
 
-  eliminarEstudiante(index: number): void {
-    this.estudianteService.eliminarEstudiante(index);
-    this.estudiantes = this.estudianteService.listarEstudiantes();
+  eliminarEstudiante(i: number): void {
+    this.estudianteService.estudiantes.splice(i, 1);
+    this.cancelarEdicion();
   }
 
-  cargarEstudiante(indice: number): void {
-    this.indiceEdicion = indice;
-    this.estudianteEnEdicion = { ...this.estudiantes[indice] };
-  }
+  guardarEstudiante(): void {
+    // Primero calculamos las notas
+    this.calcularNotas(this.estudianteForm);
 
-  actualizarEstudiante(): void {
-    if (this.indiceEdicion !== null && this.estudianteEnEdicion) {
-      const estudianteActualizado = new Estudiante(
-        this.estudianteEnEdicion.cedula,
-        this.estudianteEnEdicion.nombres,
-        this.estudianteEnEdicion.apellidos,
-        this.estudianteEnEdicion.sexo,
-        this.estudianteEnEdicion.fechaNacimiento,
-        this.estudianteEnEdicion.codigo,
-        this.estudianteEnEdicion.parcial1,
-        this.estudianteEnEdicion.parcial2
-      );
-
-      this.estudianteService.modificarEstudiante(this.indiceEdicion, estudianteActualizado);
-      this.estudiantes = this.estudianteService.listarEstudiantes();
-
-      this.indiceEdicion = null;
-      this.estudianteEnEdicion = null;
+    if (this.editIndex === null) {
+      // Crear
+      this.estudianteService.estudiantes.push({ ...this.estudianteForm });
+    } else {
+      // Editar
+      this.estudianteService.estudiantes[this.editIndex] = { ...this.estudianteForm };
     }
+
+    this.cancelarEdicion();
+  }
+
+  cancelarEdicion(): void {
+    this.editIndex = null;
+    this.estudianteForm = this.nuevoEstudianteVacio();
+  }
+
+  /**
+   * Calcular CF y ND:
+   * CF = (p1 + p2) / 2
+   * Si CF >= 7 => Aprobado
+   * Si CF < 5.5 => Reprobado
+   * Si 5.5 <= CF < 7 => ND = CF*0.4 + ER*0.6 (si hay ER)
+   */
+  private calcularNotas(e: Estudiante): void {
+    e.calificacionFinal = (e.parcial1 + e.parcial2) / 2;
+    e.notaDefinitiva = undefined;
+
+    if (e.calificacionFinal >= 7) {
+      e.estadoAprobatorio = 'Aprobado';
+      e.examenRecuperacion = undefined;
+    } else if (e.calificacionFinal < 5.5) {
+      e.estadoAprobatorio = 'Reprobado';
+      e.examenRecuperacion = undefined;
+    } else {
+      // 5.5 <= CF < 7 => requiere ER
+      if (e.examenRecuperacion !== undefined) {
+        e.notaDefinitiva = e.calificacionFinal * 0.4 + e.examenRecuperacion * 0.6;
+        e.estadoAprobatorio = e.notaDefinitiva >= 7 ? 'Aprobado' : 'Reprobado';
+      } else {
+        // No se ha ingresado ER -> "Reprobado" o "Pendiente" (tú decides)
+        e.estadoAprobatorio = 'Reprobado';
+      }
+    }
+  }
+
+  /** Getter para mostrar campo ER sólo si CF está en [5.5, 7) */
+  get requiereRecuperacion(): boolean {
+    const cf = this.estudianteForm.calificacionFinal;
+    return cf >= 5.5 && cf < 7;
+  }
+
+  /** Botón para ir a la pantalla de estadísticas */
+  verEstadisticas(): void {
+    this.router.navigate(['/estadisticas']);
   }
 }

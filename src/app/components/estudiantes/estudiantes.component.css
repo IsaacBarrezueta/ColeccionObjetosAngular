@@ -1,0 +1,9 @@
+/* src/app/components/estudiantes/estudiantes.component.css */
+/* Puedes agregar estilos propios o usar Bootstrap */
+.text-success {
+    color: green;
+  }
+  .text-danger {
+    color: red;
+  }
+  

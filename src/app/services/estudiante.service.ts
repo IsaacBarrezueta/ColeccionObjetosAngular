@@ -1,58 +1,45 @@
+// src/app/services/estudiante.service.ts
 import { Injectable } from '@angular/core';
-import { Estudiante } from '../models/estudiantes/estudiantes.module';
+import { Estudiante } from '../models/estudiantes.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class EstudianteService {
-  private estudiantes: Estudiante[] = [];
 
-  constructor() {
-    const data = localStorage.getItem('estudiantes');
-    this.estudiantes = data ? JSON.parse(data) : [];
-  }
+  // Lista inicial de ejemplo
+  estudiantes: Estudiante[] = [
+    {
+      cedula: '0101010101',
+      nombres: 'Juan',
+      apellidos: 'Pérez',
+      sexo: 'M',
+      fechaNacimiento: '1999-03-15',
+      codigo: 'EST001',
+      parcial1: 8,
+      parcial2: 5,
+      calificacionFinal: 6.5,
+      examenRecuperacion: 8,
+      notaDefinitiva: 7.4,
+      estadoAprobatorio: 'Aprobado'
+    },
+    {
+      cedula: '0202020202',
+      nombres: 'Ana',
+      apellidos: 'Gómez',
+      sexo: 'F',
+      fechaNacimiento: '2000-01-10',
+      codigo: 'EST002',
+      parcial1: 4,
+      parcial2: 3,
+      calificacionFinal: 3.5,
+      estadoAprobatorio: 'Reprobado'
+    },
+  ];
 
-  private guardarEnLocalStorage(): void {
-    localStorage.setItem('estudiantes', JSON.stringify(this.estudiantes));
-  }
+  constructor() { }
 
-  listarEstudiantes(): Estudiante[] {
-    return this.estudiantes;
-  }
-
-  agregarEstudiante(estudiante: Estudiante): void {
-    this.estudiantes.push(estudiante);
-    this.guardarEnLocalStorage();
-  }
-
-  eliminarEstudiante(index: number): void {
-    this.estudiantes.splice(index, 1);
-    this.guardarEnLocalStorage();
-  }
-
-  modificarEstudiante(index: number, estudiante: Estudiante): void {
-    this.estudiantes[index] = estudiante;
-    this.guardarEnLocalStorage();
-  }
-
-  calcularEstadisticas(): { aprobados: number; reprobados: number; promedioGeneral: number; porcentajePorSexo: Record<string, number> } {
-    const total = this.estudiantes.length;
-    const aprobados = this.estudiantes.filter((e) => e.estadoAprobatorio === 'Aprobado').length;
-    const promedioGeneral = this.estudiantes.reduce((sum, e) => sum + (e.calificacionFinal || 0), 0) / total;
-
-    const porcentajePorSexo = this.estudiantes.reduce<Record<string, number>>((acc, estudiante) => {
-      if (estudiante.estadoAprobatorio === 'Aprobado') {
-        acc[estudiante.sexo] = (acc[estudiante.sexo] || 0) + 1;
-      }
-      return acc;
-    }, {});
-
-    for (const sexo in porcentajePorSexo) {
-      if (porcentajePorSexo.hasOwnProperty(sexo)) {
-        porcentajePorSexo[sexo] = (porcentajePorSexo[sexo] / total) * 100;
-      }
-    }
-
-    return { aprobados, reprobados: total - aprobados, promedioGeneral, porcentajePorSexo };
-  }
+  // Podrías agregar métodos CRUD, pero 
+  // con exponer "estudiantes" y manipularlo desde los componentes
+  // es suficiente para la demo.
 }

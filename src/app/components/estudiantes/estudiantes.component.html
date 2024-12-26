@@ -1,88 +1,132 @@
-<h1>Gestión de Estudiantes</h1>
+<!-- src/app/components/estudiantes/estudiantes.component.html -->
+<div class="container">
+  <h2>Estudiantes</h2>
 
-<!-- Formulario para agregar estudiantes -->
-<form (ngSubmit)="agregarEstudiante()">
-  <div class="form-group">
-    <label for="nombres">Nombres:</label>
-    <input id="nombres" name="nombres" [(ngModel)]="nuevoEstudiante.nombres" required />
-  </div>
-  <div class="form-group">
-    <label for="apellidos">Apellidos:</label>
-    <input id="apellidos" name="apellidos" [(ngModel)]="nuevoEstudiante.apellidos" required />
-  </div>
-  <div class="form-group">
-    <label for="codigo">Código:</label>
-    <input id="codigo" name="codigo" [(ngModel)]="nuevoEstudiante.codigo" required />
-  </div>
-  <div class="form-group">
-    <label for="sexo">Sexo:</label>
-    <select id="sexo" name="sexo" [(ngModel)]="nuevoEstudiante.sexo" required>
-      <option value="M">Masculino</option>
-      <option value="F">Femenino</option>
-    </select>
-  </div>
-  <div class="form-group">
-    <label for="parcial1">Parcial 1:</label>
-    <input id="parcial1" name="parcial1" type="number" [(ngModel)]="nuevoEstudiante.parcial1" required />
-  </div>
-  <div class="form-group">
-    <label for="parcial2">Parcial 2:</label>
-    <input id="parcial2" name="parcial2" type="number" [(ngModel)]="nuevoEstudiante.parcial2" required />
-  </div>
-  <button type="submit" class="btn btn-primary">Agregar Estudiante</button>
-</form>
+  <!-- Tabla Listado -->
+  <table class="table table-bordered mt-3">
+    <thead class="table-light">
+      <tr>
+        <th>Código</th>
+        <th>Estudiante</th>
+        <th>Parcial 1</th>
+        <th>Parcial 2</th>
+        <th>CF</th>
+        <th>ER</th>
+        <th>ND</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let est of estudianteService.estudiantes; let i=index">
+        <td>{{ est.codigo }}</td>
+        <td>{{ est.nombres }} {{ est.apellidos }}</td>
+        <td>{{ est.parcial1 }}</td>
+        <td>{{ est.parcial2 }}</td>
+        <td>{{ est.calificacionFinal | number:'1.1-2' }}</td>
+        <td>
+          {{ est.examenRecuperacion !== undefined ? est.examenRecuperacion : 'N/A' }}
+        </td>
+        <td>
+          {{ est.notaDefinitiva !== undefined ? (est.notaDefinitiva | number:'1.1-2') : 'N/A' }}
+        </td>
+        <td 
+          [ngClass]="{
+            'text-success': est.estadoAprobatorio === 'Aprobado',
+            'text-danger': est.estadoAprobatorio === 'Reprobado'
+          }">
+          {{ est.estadoAprobatorio }}
+        </td>
+        <td>
+          <button class="btn btn-warning btn-sm" (click)="editarEstudiante(i)">Actualizar</button>
+          <button class="btn btn-danger btn-sm ms-2" (click)="eliminarEstudiante(i)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
-<!-- Tabla para listar estudiantes -->
-<h2>Lista de Estudiantes</h2>
-<table class="table">
-  <thead>
-    <tr>
-      <th>Código</th>
-      <th>Nombres</th>
-      <th>Apellidos</th>
-      <th>Sexo</th>
-      <th>Parcial 1</th>
-      <th>Parcial 2</th>
-      <th>Calificación Final</th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let estudiante of estudiantes; let i = index">
-      <td>{{ estudiante.codigo }}</td>
-      <td>{{ estudiante.nombres }}</td>
-      <td>{{ estudiante.apellidos }}</td>
-      <td>{{ estudiante.sexo }}</td>
-      <td>{{ estudiante.parcial1 }}</td>
-      <td>{{ estudiante.parcial2 }}</td>
-      <td>{{ estudiante.calificacionFinal }}</td>
-      <td>{{ estudiante.estadoAprobatorio }}</td>
-      <td>
-        <button (click)="cargarEstudiante(i)" class="btn btn-warning">Editar</button>
-        <button (click)="eliminarEstudiante(i)" class="btn btn-danger">Eliminar</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+  <hr />
 
-<h3 *ngIf="indiceEdicion !== null">Actualizar Estudiante</h3>
-<form *ngIf="indiceEdicion !== null" (ngSubmit)="actualizarEstudiante()">
-  <div class="form-group">
-    <label for="nombres">Nombres:</label>
-    <input id="nombres" name="nombres" [(ngModel)]="estudianteEnEdicion?.nombres" required />
+  <!-- Formulario para Crear/Editar -->
+  <div class="row mt-4">
+    <!-- Datos personales -->
+    <div class="col-md-4">
+      <h5>Datos del Estudiante</h5>
+      <div class="mb-2">
+        <label>Cédula</label>
+        <input type="text" class="form-control"
+               [(ngModel)]="estudianteForm.cedula"
+               name="cedula" />
+      </div>
+      <div class="mb-2">
+        <label>Nombres</label>
+        <input type="text" class="form-control"
+               [(ngModel)]="estudianteForm.nombres"
+               name="nombres" />
+      </div>
+      <div class="mb-2">
+        <label>Apellidos</label>
+        <input type="text" class="form-control"
+               [(ngModel)]="estudianteForm.apellidos"
+               name="apellidos" />
+      </div>
+      <div class="mb-2">
+        <label>Sexo</label>
+        <select class="form-select"
+                [(ngModel)]="estudianteForm.sexo"
+                name="sexo">
+          <option value="M">Masculino</option>
+          <option value="F">Femenino</option>
+        </select>
+      </div>
+      <div class="mb-2">
+        <label>Fecha Nacimiento</label>
+        <input type="date" class="form-control"
+               [(ngModel)]="estudianteForm.fechaNacimiento"
+               name="fechaNacimiento" />
+      </div>
+      <div class="mb-2">
+        <label>Código</label>
+        <input type="text" class="form-control"
+               [(ngModel)]="estudianteForm.codigo"
+               name="codigo" />
+      </div>
+    </div>
+
+    <!-- Notas Parciales y Botones -->
+    <div class="col-md-3 offset-md-1">
+      <h5>Notas Parciales</h5>
+      <div class="mb-2">
+        <label>Parcial 1</label>
+        <input type="number" class="form-control"
+               [(ngModel)]="estudianteForm.parcial1"
+               name="parcial1" step="0.1" />
+      </div>
+      <div class="mb-2">
+        <label>Parcial 2</label>
+        <input type="number" class="form-control"
+               [(ngModel)]="estudianteForm.parcial2"
+               name="parcial2" step="0.1" />
+      </div>
+      <button class="btn btn-primary mt-3" (click)="guardarEstudiante()">
+        {{ editIndex === null ? 'Agregar' : 'Actualizar' }}
+      </button>
+      <button class="btn btn-secondary mt-3 ms-2" (click)="cancelarEdicion()">Cancelar</button>
+      <button class="btn btn-info mt-3 ms-2" (click)="verEstadisticas()">
+        Ver Estadísticas
+      </button>
+    </div>
+
+    <!-- Examen de Recuperación, solo si requiereRecuperacion -->
+    <div class="col-md-3 offset-md-1" *ngIf="requiereRecuperacion">
+      <h5>Examen de Recuperación</h5>
+      <p class="text-muted">CF entre 5.5 y 7, ingresa nota de recuperación</p>
+      <div class="mb-2">
+        <label>Nota ER</label>
+        <input type="number" class="form-control"
+               [(ngModel)]="estudianteForm.examenRecuperacion"
+               name="examenRecuperacion" step="0.1" />
+      </div>
+    </div>
   </div>
-  <div class="form-group">
-    <label for="apellidos">Apellidos:</label>
-    <input id="apellidos" name="apellidos" [(ngModel)]="estudianteEnEdicion?.apellidos" required />
-  </div>
-  <div class="form-group">
-    <label for="parcial1">Parcial 1:</label>
-    <input id="parcial1" name="parcial1" type="number" [(ngModel)]="estudianteEnEdicion?.parcial1" required />
-  </div>
-  <div class="form-group">
-    <label for="parcial2">Parcial 2:</label>
-    <input id="parcial2" name="parcial2" type="number" [(ngModel)]="estudianteEnEdicion?.parcial2" required />
-  </div>
-  <button type="submit" class="btn btn-primary">Actualizar</button>
-</form>
+</div>
